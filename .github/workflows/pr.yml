@@ -1,0 +1,68 @@
+name: PR - Build, Test, Security, Deploy (PR Slot)
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  security-events: write
+
+env:
+  DOTNET_VERSION: "8.0.x"
+  API_CSPROJ: "HelloApi/HelloApi.csproj"
+  PUBLISH_DIR: "publish"
+
+jobs:
+  build_test_security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release -warnaserror
+
+      - name: Test
+        run: dotnet test -c Release --no-build
+
+      # Security scan (SAST): CodeQL
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+
+      - name: Analyze with CodeQL
+        uses: github/codeql-action/analyze@v3
+
+      - name: Publish
+        run: dotnet publish ${{ env.API_CSPROJ }} -c Release -o ${{ env.PUBLISH_DIR }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: webapp
+          path: ${{ env.PUBLISH_DIR }}
+
+  deploy_pr_slot:
+    needs: build_test_security
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: webapp
+          path: ${{ env.PUBLISH_DIR }}
+
+      - name: Deploy to Azure App Service (slot: pr)
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.AZURE_WEBAPP_NAME }}
+          slot-name: pr
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISH_PROFILE_PR }}
+          package: ${{ env.PUBLISH_DIR }}
