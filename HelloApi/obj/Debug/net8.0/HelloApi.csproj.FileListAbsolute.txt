@@ -31,3 +31,4 @@ C:\Users\Dell\hello-dotnet-api\HelloApi\obj\Debug\net8.0\refint\HelloApi.dll
 C:\Users\Dell\hello-dotnet-api\HelloApi\obj\Debug\net8.0\HelloApi.pdb
 C:\Users\Dell\hello-dotnet-api\HelloApi\obj\Debug\net8.0\HelloApi.genruntimeconfig.cache
 C:\Users\Dell\hello-dotnet-api\HelloApi\obj\Debug\net8.0\ref\HelloApi.dll
+C:\Users\Dell\hello-dotnet-api\HelloApi\obj\Debug\net8.0\HelloApi.sourcelink.json
