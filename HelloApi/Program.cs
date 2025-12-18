@@ -4,6 +4,6 @@ var app = builder.Build();
 app.MapGet("/", () => "Hello World!");
 app.MapGet("/hello", () => Results.Ok(new { message = "Hello Bro!" }));
 
-//triggrt pr workflow
-
+//trigger pr workflow
+//this is another test
 app.Run();
