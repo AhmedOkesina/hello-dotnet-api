@@ -32,7 +32,6 @@ jobs:
       - name: Test
         run: dotnet test -c Release --no-build
 
-      # Security scan (SAST): CodeQL
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
@@ -66,3 +65,4 @@ jobs:
           slot-name: pr
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISH_PROFILE_PR }}
           package: ${{ env.PUBLISH_DIR }}
+
