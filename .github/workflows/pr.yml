@@ -2,7 +2,7 @@ name: PR - Build, Test, Security, Deploy (PR Slot)
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 permissions:
   contents: read
@@ -17,9 +17,11 @@ jobs:
   build_test_security:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-dotnet@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -32,7 +34,6 @@ jobs:
       - name: Test
         run: dotnet test -c Release --no-build
 
-      # Security scan (SAST): CodeQL
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
@@ -44,7 +45,8 @@ jobs:
       - name: Publish
         run: dotnet publish ${{ env.API_CSPROJ }} -c Release -o ${{ env.PUBLISH_DIR }}
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
           name: webapp
           path: ${{ env.PUBLISH_DIR }}
@@ -52,9 +54,10 @@ jobs:
   deploy_pr_slot:
     needs: build_test_security
     runs-on: ubuntu-latest
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
         with:
           name: webapp
           path: ${{ env.PUBLISH_DIR }}
